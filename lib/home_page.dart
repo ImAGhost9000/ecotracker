@@ -1,11 +1,13 @@
+import 'package:ecotracker/Bar%20Graph/bar_data.dart';
+import 'package:ecotracker/Bar%20Graph/bar_graph.dart';
 import 'package:flutter/material.dart';
-import 'custom_bar_graph.dart';  // Ensure this path is correct
 import 'settings.dart';          // Import your settings page
 import 'usage.dart';             // Import your usage page
 import 'electricity_page.dart';  // Import your ElectricityPage
 import 'water_page.dart';        // Import your WaterPage
 
 class HomePage extends StatefulWidget {
+  const HomePage({super.key});
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -14,12 +16,12 @@ class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   // Define the different pages to display
-  static List<Widget> _widgetOptions = <Widget>[
+  static final List<Widget> _widgetOptions = <Widget>[
     HomeContent(),            // Your home content with CustomBarGraph
-    ElectricityPage(),        // Page for electricity consumption
-    WaterPage(),              // Page for water consumption
+    const ElectricityPage(),        // Page for electricity consumption
+    const WaterPage(),              // Page for water consumption
     UsagePage(),              // Your Usage page
-    SettingsPage(),           // Your Settings page
+    const SettingsPage(),           // Your Settings page
   ];
 
   void _onItemTapped(int index) {
@@ -83,7 +85,12 @@ class _HomePageState extends State<HomePage> {
 }
 
 // HomeContent widget to encapsulate the bar graphs
-class HomeContent extends StatelessWidget {
+class HomeContent extends StatefulWidget {
+  @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -91,24 +98,9 @@ class HomeContent extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            CustomBarGraph(
-              data: [25, 45, 35, 20, 25, 40, 20],
-              labels: ['M', 'T', 'W', 'Th', 'F', 'Sat', 'Sun'],
-              title: 'Electricity Consumption',
-              barColor: Colors.yellow,
-              maxValue: 50,
-              unit: 'kWh', // Add unit here for electricity
-            ),
-            SizedBox(height: 20),
-            CustomBarGraph(
-              data: [75, 115, 100, 60, 60, 110, 50],
-              labels: ['M', 'T', 'W', 'Th', 'F', 'Sat', 'Sun'],
-              title: 'Water Consumption',
-              barColor: Colors.blue,
-              maxValue: 125,
-              unit: 'Gal', // Add unit here for water
-            ),
-            SizedBox(height: 20),
+            Bargraph(weeklyUsage: electricalUsage,barColor: Colors.yellow, unitMeasurement: 'KwH = Kilowatt per Liter'),
+            Bargraph(weeklyUsage: waterUsage, barColor: Colors.blue, unitMeasurement: 'GaL = Gallons Per Liter'),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Update the selected index to switch to ElectricityPage

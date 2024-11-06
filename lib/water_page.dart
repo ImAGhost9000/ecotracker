@@ -1,9 +1,13 @@
+import 'package:ecotracker/Date/date_container.dart';
 import 'package:flutter/material.dart';
-import 'custom_bar_graph.dart';  // Ensure this path is correct
 import 'device_input_widget.dart';  // Import the reusable widget
 import 'home_page.dart';  // Import HomePage for navigation
+import 'package:ecotracker/Bar Graph/bar_graph.dart';
+import 'package:ecotracker/Bar Graph/bar_data.dart';
 
 class WaterPage extends StatefulWidget {
+  const WaterPage({super.key});
+
   @override
   _WaterPageState createState() => _WaterPageState();
 }
@@ -46,17 +50,14 @@ class _WaterPageState extends State<WaterPage> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                CustomBarGraph(
-                  // Use temporary data for visualization
-                  data: [75, 115, 100, 60, 60, 110, 50], // Temporary data for visualization
-                  labels: ['M', 'T', 'W', 'Th', 'F', 'Sat', 'Sun'],
-                  title: 'Water Consumption (Gallons)',
-                  barColor: Colors.blue,
-                  maxValue: 150, // Adjust max value as needed
-                  unit: 'Gal',
+                const Padding(
+                  padding: EdgeInsets.only(right: 16.0),
+                  child: Datecontainer(),
                 ),
-                SizedBox(height: 20),
+                Bargraph(weeklyUsage: waterUsage, barColor: Colors.blue, unitMeasurement: 'GaL = Gallons Per Liter'),
+                const SizedBox(height: 20),
                 DeviceInputWidget(
                   boxColor: Colors.blue,
                   deviceType: 'Water',

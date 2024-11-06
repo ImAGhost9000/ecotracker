@@ -3,17 +3,20 @@ import 'login_page.dart'; // Ensure the login_page.dart file exists and is corre
 import 'home_page.dart';  // Import the HomePage
 
 class SettingsPage extends StatelessWidget {
+  const SettingsPage({
+    super.key
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => HomePage()), // Navigate to HomePage
+              MaterialPageRoute(builder: (context) => const HomePage()), // Navigate to HomePage
             );
           },
         ),
@@ -22,7 +25,7 @@ class SettingsPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween, // This will push content to the top and bottom
         children: [
           // Add your icons or other settings options here
-          Expanded(
+          const Expanded(
             child: Center(
               child: Text(
                 'Settings Page', // Replace with your settings options or icons
@@ -37,14 +40,14 @@ class SettingsPage extends StatelessWidget {
                 // Navigate back to the login page when logging out
                 Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
                   (route) => false, // This will remove all routes from the stack
                 );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
               ),
-              child: Text('Logout'),
+              child: const Text('Logout'),
             ),
           ),
         ],

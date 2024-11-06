@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
-import 'custom_bar_graph.dart';  // Ensure this path is correct
 import 'device_input_widget.dart';  // Import the reusable widget
 import 'home_page.dart';  // Import HomePage for navigation
+import 'package:ecotracker/Bar Graph/bar_graph.dart';
+import 'package:ecotracker/Bar Graph/bar_data.dart';
+import 'package:ecotracker/Date/date_container.dart';
+
+
 
 class ElectricityPage extends StatefulWidget {
+  const ElectricityPage({super.key});
   @override
   _ElectricityPageState createState() => _ElectricityPageState();
 }
@@ -30,7 +35,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -44,16 +49,14 @@ class _ElectricityPageState extends State<ElectricityPage> {
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                CustomBarGraph(
-                  data: [25, 45, 35, 20, 25, 40, 20], // Use example data for now
-                  labels: ['M', 'T', 'W', 'Th', 'F', 'Sat', 'Sun'],
-                  title: 'Electricity Consumption (kWh)',
-                  barColor: Colors.yellow,
-                  maxValue: 50, // Adjust max value as needed
-                  unit: 'kWh',
+                const Padding(
+                  padding: EdgeInsets.only(right: 16.0),
+                  child: Datecontainer(),
                 ),
-                SizedBox(height: 20),
+                Bargraph(weeklyUsage: electricalUsage,barColor: Colors.yellow, unitMeasurement: 'KwH = Kilowatt per Liter'),
+                const SizedBox(height: 20),
                 DeviceInputWidget(
                   boxColor: Colors.yellow,
                   deviceType: 'Electricity',
@@ -67,3 +70,7 @@ class _ElectricityPageState extends State<ElectricityPage> {
     );
   }
 }
+
+
+
+

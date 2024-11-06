@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'home_page.dart'; // Import HomePage class
 
+
+
 class LoginPage extends StatefulWidget {
+  const LoginPage({
+    super.key,
+  });
   @override
   _LoginPageState createState() => _LoginPageState();
 }
