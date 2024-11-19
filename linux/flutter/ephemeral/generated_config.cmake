@@ -16,5 +16,5 @@ list(APPEND FLUTTER_TOOL_ENVIRONMENT
   "TRACK_WIDGET_CREATION=true"
   "TREE_SHAKE_ICONS=false"
   "PACKAGE_CONFIG=/home/aaron/Desktop/College/SoftwareEng2/EcoTracker/.dart_tool/package_config.json"
-  "FLUTTER_TARGET=/home/aaron/Desktop/College/SoftwareEng2/EcoTracker/lib/usage.dart"
+  "FLUTTER_TARGET=/home/aaron/Desktop/College/SoftwareEng2/EcoTracker/lib/main.dart"
 )

@@ -1,27 +1,31 @@
 import 'package:ecotracker/Bar%20Graph/bar_data.dart';
 import 'package:ecotracker/Bar%20Graph/bar_graph.dart';
 import 'package:flutter/material.dart';
-import 'settings.dart';          // Import your settings page
-import 'usage.dart';             // Import your usage page
-import 'electricity_page.dart';  // Import your ElectricityPage
-import 'water_page.dart';        // Import your WaterPage
+import 'settings.dart';          
+import 'usage.dart';             
+import 'electricity_page.dart';  
+import 'water_page.dart';        
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
 
   // Define the different pages to display
   static final List<Widget> _widgetOptions = <Widget>[
-    HomeContent(),            // Your home content with CustomBarGraph
-    const ElectricityPage(),        // Page for electricity consumption
-    const WaterPage(),              // Page for water consumption
-    UsagePage(),              // Your Usage page
-    const SettingsPage(),           // Your Settings page
+    // ignore: prefer_const_constructors
+    HomeContent(),            
+    // ignore: prefer_const_constructors
+    ElectricityPage(),        
+    // ignore: prefer_const_constructors
+    WaterPage(),              
+    UsagePage(),              
+    // ignore: prefer_const_constructors
+    SettingsPage(),           
   ];
 
   void _onItemTapped(int index) {
@@ -34,16 +38,19 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Ecotracker.',
-          style: TextStyle(color: Colors.white),
+        title: Row(
+          children: [
+            Image.asset(
+              'images/ecotracker_logo.png',
+              height: 48,
+            ),
+          ],
         ),
         backgroundColor: Colors.black,
         actions: [
           IconButton(
-            icon: Icon(Icons.info_outline, color: Colors.white),
+            icon: const Icon(Icons.info_outline, color: Colors.white),
             onPressed: () {
-              // Add info action
             },
           ),
         ],
@@ -78,14 +85,16 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.green,
         unselectedItemColor: Colors.white,
         backgroundColor: Colors.black,
-        onTap: _onItemTapped, // Handle the tap to change pages
+        onTap: _onItemTapped, 
       ),
     );
   }
 }
 
-// HomeContent widget to encapsulate the bar graphs
+
 class HomeContent extends StatefulWidget {
+  const HomeContent({super.key}); 
+
   @override
   State<HomeContent> createState() => _HomeContentState();
 }
@@ -104,7 +113,7 @@ class _HomeContentState extends State<HomeContent> {
             ElevatedButton(
               onPressed: () {
                 // Update the selected index to switch to ElectricityPage
-                final homeState = context.findAncestorStateOfType<_HomePageState>();
+                final homeState = context.findAncestorStateOfType<HomePageState>();
                 if (homeState != null) {
                   homeState.setState(() {
                     homeState._selectedIndex = 1; // Switch to ElectricityPage
@@ -113,15 +122,15 @@ class _HomeContentState extends State<HomeContent> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.yellow,
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.flash_on, color: const Color.fromARGB(255, 241, 140, 25)),
+                  Icon(Icons.flash_on, color: Color.fromARGB(255, 241, 140, 25)),
                   SizedBox(width: 10),
                   Text(
                     'Electrical Devices',
@@ -130,11 +139,11 @@ class _HomeContentState extends State<HomeContent> {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 // Update the selected index to switch to WaterPage
-                final homeState = context.findAncestorStateOfType<_HomePageState>();
+                final homeState = context.findAncestorStateOfType<HomePageState>();
                 if (homeState != null) {
                   homeState.setState(() {
                     homeState._selectedIndex = 2; // Switch to WaterPage
@@ -143,15 +152,15 @@ class _HomeContentState extends State<HomeContent> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                minimumSize: Size(double.infinity, 50),
+                minimumSize: const Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
               ),
-              child: Row(
+              child: const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.water_drop, color: const Color.fromARGB(255, 45, 194, 248)),
+                  Icon(Icons.water_drop, color:  Color.fromARGB(255, 45, 194, 248)),
                   SizedBox(width: 10),
                   Text(
                     'Water Utilities',

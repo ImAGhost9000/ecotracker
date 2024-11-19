@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'home_page.dart'; // Import HomePage class
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 void main() {
-  runApp(const EcoTrackerApp());
+  runApp(const ProviderScope(child: MaterialApp(home: EcoTrackerApp())));
 }
+
+
 
 class EcoTrackerApp extends StatelessWidget {
   const EcoTrackerApp({
@@ -12,8 +15,8 @@ class EcoTrackerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData.dark(), // Adjust theme to match the dark layout
-      home: const HomePage(), // Set HomePage as the initial route
+      theme: ThemeData.dark(), 
+      home: const HomePage(), 
     );
   }
 }
