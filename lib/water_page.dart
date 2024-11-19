@@ -149,7 +149,7 @@ class WaterPageState extends ConsumerState<WaterPage> {
       ),
 
     floatingActionButton: FloatingActionButton(
-      onPressed: () => showAddDeviceDialog,
+      onPressed: () => showAddDeviceDialog(context),
       child: const Icon(Icons.add),
     ),
 
@@ -235,7 +235,7 @@ class WaterPageState extends ConsumerState<WaterPage> {
   void editDialog(BuildContext context, WaterDevices device) {
     final devicesNotifier = ref.read(waterDevicesListProvider.notifier);
 
-    // Initialize controllers with the existing values of the device
+    
     final titleController = TextEditingController(text: device.title);
     final usageController = TextEditingController(text: device.usagePerUse.toString());
 
