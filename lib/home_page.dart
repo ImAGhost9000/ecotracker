@@ -1,5 +1,7 @@
-import 'package:ecotracker/Bar%20Graph/bar_data.dart';
 import 'package:ecotracker/Bar%20Graph/bar_graph.dart';
+import 'package:ecotracker/Providers/electricdevices_provider.dart';
+import 'package:ecotracker/Providers/waterdevices_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'settings.dart';          
 import 'usage.dart';             
@@ -92,23 +94,27 @@ class HomePageState extends State<HomePage> {
 }
 
 
-class HomeContent extends StatefulWidget {
+class HomeContent extends ConsumerStatefulWidget {
   const HomeContent({super.key}); 
 
   @override
-  State<HomeContent> createState() => _HomeContentState();
+  HomeContentState createState() => HomeContentState();
 }
 
-class _HomeContentState extends State<HomeContent> {
+class HomeContentState extends ConsumerState<HomeContent> {
+  
+
   @override
   Widget build(BuildContext context) {
+    final electricalWeeklyUsages = ref.watch(weeklyUsageAggregatorProvider);
+    final waterWeeklyUsages =  ref.watch(waterWeeklyUsageAggregatorProvider);
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Bargraph(weeklyUsage: electricalUsage,barColor: Colors.yellow, unitMeasurement: 'KwH = Kilowatt per Liter'),
-            Bargraph(weeklyUsage: waterUsage, barColor: Colors.blue, unitMeasurement: 'GaL = Gallons Per Liter'),
+            Bargraph(weeklyUsage: electricalWeeklyUsages,barColor: Colors.yellow, unitMeasurement: 'KwH = Kilowatt per Hour'),
+            Bargraph(weeklyUsage: waterWeeklyUsages, barColor: Colors.blue, unitMeasurement: 'GpM = Gallons Per Minute'),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {

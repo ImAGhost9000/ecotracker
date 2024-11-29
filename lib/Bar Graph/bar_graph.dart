@@ -3,7 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class MyBarGraph extends StatelessWidget {
-  final List weeklySummary;
+  final List<double> weeklySummary;
   final Color barColor;
   const MyBarGraph({
     super.key,
@@ -25,15 +25,26 @@ class MyBarGraph extends StatelessWidget {
 
     myBarData.initializeBarData();
 
+    
+    double maxY = (weeklySummary.isEmpty ? 100 : weeklySummary.reduce((a, b) => a > b ? a : b) * 1.1).ceilToDouble();
+    double horizontalInterval;
+
+    
+    if (maxY > 0) {
+      horizontalInterval = maxY / 5;
+    } else {
+      horizontalInterval = 5; 
+    }
+
     return BarChart(
       BarChartData(
-        maxY: 100, // Maximum Y value
+        maxY: maxY, // Maximum Y value
         minY: 0,   // Minimum Y value
 
         backgroundColor: const Color.fromARGB(255, 40, 39, 39),
         gridData: FlGridData(
           drawVerticalLine: false,
-          horizontalInterval: 20,
+          horizontalInterval: horizontalInterval,
           getDrawingHorizontalLine: (value) {
             return const FlLine(
               color: Color.fromARGB(255, 73, 72, 72),
@@ -55,7 +66,7 @@ class MyBarGraph extends StatelessWidget {
               SideTitles(
                 showTitles: true,
                 reservedSize: 55,
-                interval: 20,
+                interval: horizontalInterval,
                 getTitlesWidget: (value, meta) {
                   return Container(
                     padding: const EdgeInsets.all(10.0),

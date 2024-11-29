@@ -1,11 +1,14 @@
 import 'package:ecotracker/Date/date_container.dart';
 import 'package:ecotracker/Models/water_devices.dart';
+import 'package:ecotracker/Providers/date_provider.dart';
 import 'package:ecotracker/Providers/waterdevices_provider.dart';
+import 'package:ecotracker/SnackBar%20/snack_bar.dart';
+import 'package:ecotracker/electricity_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:math';
 import 'package:ecotracker/Bar Graph/bar_graph.dart';
-import 'package:ecotracker/Bar Graph/bar_data.dart';
+
 
 class WaterPage extends ConsumerStatefulWidget {
   const WaterPage({super.key});
@@ -29,7 +32,7 @@ class WaterPageState extends ConsumerState<WaterPage> {
   Widget build(BuildContext context) {
     //MaterialPageRoute(builder: (context) => const HomePage()), // Navigate back to HomePage
     final waterDevices = ref.watch(waterDevicesListProvider);
-
+    final waterWeeklyUsage = ref.watch(waterWeeklyUsageAggregatorProvider);
 
     return Scaffold(
       
@@ -41,10 +44,10 @@ class WaterPageState extends ConsumerState<WaterPage> {
             children: [
               const Padding(
                 padding: EdgeInsets.only(right: 16.0),
-                child: Datecontainer(),
+                child: DateContainer(),
               ),
 
-              Bargraph(weeklyUsage: waterUsage, barColor: Colors.blue, unitMeasurement: 'GaL = Gallons Per Liter'),
+              Bargraph(weeklyUsage: waterWeeklyUsage, barColor: Colors.blue, unitMeasurement: 'GpM = Gallons per Minute'),
 
               const SizedBox(height: 10),
 
@@ -70,14 +73,14 @@ class WaterPageState extends ConsumerState<WaterPage> {
                                   color: Colors.black
                                 ),
                               ),
-                            subtitle: Text("Usage: ${device.usagePerUse} kWh", style: const TextStyle(color: Colors.black),),
+                            subtitle: Text("Usage: ${device.usagePerUse} GpM", style: const TextStyle(color: Colors.black),),
                             trailing: SizedBox(
                               width: 160,
                               child: TextFormField(
                                 style: const TextStyle(color: Colors.black),
                                 controller: deviceInputControllers2[device.id],
                                 decoration: InputDecoration(
-                                  labelText: 'Hours Used?', labelStyle: const TextStyle(color: Colors.black),
+                                  labelText: 'Minutes Used?', labelStyle: const TextStyle(color: Colors.black),
                                   border: const OutlineInputBorder(),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide: const BorderSide(color: Colors.black),
@@ -100,7 +103,11 @@ class WaterPageState extends ConsumerState<WaterPage> {
                             right: -12,
                             child: IconButton(
                               onPressed: () {
-                                ref.read(waterDevicesListProvider.notifier).removeDevice(device.id);
+                                showConfirmationDialog(
+                                  context, 
+                                  () => ref.read(waterDevicesListProvider.notifier).removeDevice(device.id), 
+                                  "Removing Device will delete their usage logs",
+                                );
                               },
 
                               padding: EdgeInsets.zero,
@@ -138,7 +145,11 @@ class WaterPageState extends ConsumerState<WaterPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
                   child: ElevatedButton(
-                    onPressed: () => submitUsage(),
+                    onPressed: () => showConfirmationDialog(context,() => submitUsage(), "Recorded Usages cannot be removed"),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green[700],
+                    ),
                     child: const Text('Submit'),
                   ),
                 ),
@@ -150,6 +161,8 @@ class WaterPageState extends ConsumerState<WaterPage> {
 
     floatingActionButton: FloatingActionButton(
       onPressed: () => showAddDeviceDialog(context),
+      backgroundColor: Colors.green[700],
+      foregroundColor: Colors.white,
       child: const Icon(Icons.add),
     ),
 
@@ -159,7 +172,7 @@ class WaterPageState extends ConsumerState<WaterPage> {
   void submitUsage() {
     final devices = ref.read(waterDevicesListProvider);
     final usagesNotifier = ref.read(waterUsagesListProvider.notifier);
-    final now = DateTime.now();
+    final now = ref.read(selectedDateNotifierProvider);
 
     for (var device in devices) {
       final controller = deviceInputControllers2[device.id];
@@ -172,9 +185,17 @@ class WaterPageState extends ConsumerState<WaterPage> {
       final usage = calculateDeviceUsage(device.usagePerUse, inputNumber);
 
       usagesNotifier.addUsageLog(
-        WaterDevicesUsageLog(deviceid: device.id, timestamp: now, usage: usage),
+        WaterDevicesUsageLog(
+          usageId: 0,
+          deviceid: device.id, 
+          timestamp: now, 
+          usage: usage,
+        ),
       );
     }
+    
+    deviceInputControllers2.clear();
+    showConfirmedSnackbar(context, "Usage Updated");
   }
 
   void showAddDeviceDialog(BuildContext context) {
@@ -215,7 +236,7 @@ class WaterPageState extends ConsumerState<WaterPage> {
                 if (title.isNotEmpty && usage > 0) {
                   devicesNotifier.addDevice(
                     WaterDevices(
-                      id: DateTime.now().millisecondsSinceEpoch,
+                      id: 0,
                       title: title,
                       usagePerUse: usage,
                       color: color,
@@ -269,16 +290,16 @@ class WaterPageState extends ConsumerState<WaterPage> {
                 final usage = double.tryParse(usageController.text) ?? 0;
 
                 if (title.isNotEmpty && usage > 0) {
-                  // Update the device with new title and usage values
+                  
                   devicesNotifier.updateDevice(
                     WaterDevices(
-                      id: device.id,  // Keep the same ID to identify the device
-                      title: title,    // New title from text field
-                      usagePerUse: usage,  // New usage from text field
-                      color: device.color,  // Retain the current color
+                      id: device.id,  
+                      title: title,    
+                      usagePerUse: usage,  
+                      color: device.color,  
                     ),
                   );
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop(); 
                 }
               },
               child: const Text('Edit'),
@@ -291,7 +312,7 @@ class WaterPageState extends ConsumerState<WaterPage> {
 }
 
 double calculateDeviceUsage(double baseUsage, double numHours) {
-  if (numHours <= 0 || numHours > 24) return 0;
+  if (numHours <= 0 || numHours > 1440) return 0;
   return baseUsage * numHours;
 }
 

@@ -1,7 +1,8 @@
+import 'package:ecotracker/Providers/date_provider.dart';
 import 'package:ecotracker/Providers/electricdevices_provider.dart';
+import 'package:ecotracker/SnackBar%20/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:ecotracker/Bar Graph/bar_graph.dart';
-import 'package:ecotracker/Bar Graph/bar_data.dart';
 import 'package:ecotracker/Date/date_container.dart';
 import 'Models/electric_devices.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,7 +30,7 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
   Widget build(BuildContext context) {
     
     final electricDevices = ref.watch(electricDevicesListProvider); 
-    
+    final electricalWeeklyUsages = ref.watch(weeklyUsageAggregatorProvider);
 
     return Scaffold(
       
@@ -41,10 +42,10 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
             children: [
               const Padding(
                 padding: EdgeInsets.only(right: 16.0),
-                child: Datecontainer(),
+                child: DateContainer(),
               ),
               Bargraph(
-                weeklyUsage: electricalUsage, 
+                weeklyUsage: electricalWeeklyUsages, 
                 barColor: Colors.yellow,
                 unitMeasurement: 'KwH = Kilowatt per Hour',
               ),
@@ -100,7 +101,11 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
                             right: -12,
                             child: IconButton(
                               onPressed: () {
-                                ref.read(electricDevicesListProvider.notifier).removeDevice(device.id);
+                                showConfirmationDialog(
+                                  context, 
+                                  () => ref.read(electricDevicesListProvider.notifier).removeDevice(device.id), 
+                                  "Removing Device Deletes their Usage Logs"
+                                );
                               },
 
                               padding: EdgeInsets.zero,
@@ -117,7 +122,9 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
                             top: -3,
                             right: -12,
                             child: IconButton(
-                              onPressed: () => editDialog(context,device),                             
+                              onPressed: (){
+                                editDialog(context,device);
+                                },                             
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                               icon: const Icon(
@@ -137,8 +144,13 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(6.0),
                   child: ElevatedButton(
-                    onPressed: () => submitUsage(),
+                    onPressed: () => showConfirmationDialog(context, () => submitUsage(), "Recorded usages cannot be removed"),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green[800],
+                    ),
                     child: const Text('Submit'),
+                    
                   ),
                 ),
               ),
@@ -149,6 +161,8 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
 
     floatingActionButton: FloatingActionButton(
       onPressed: () => showAddDeviceDialog(context),
+      backgroundColor: Colors.green[800],
+      foregroundColor: Colors.white,
       child: const Icon(Icons.add),
     ),
     );
@@ -157,7 +171,7 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
   void submitUsage() {
     final devices = ref.read(electricDevicesListProvider);
     final usagesNotifier = ref.read(electricUsagesListProvider.notifier);
-    final now = DateTime.now();
+    final now = ref.read(selectedDateNotifierProvider);
 
     for (var device in devices) {
       final controller = deviceInputControllers[device.id];
@@ -170,9 +184,14 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
       final usage = calculateDeviceUsage(device.usagePerUse, inputNumber);
 
       usagesNotifier.addUsageLog(
-        ElectricDevicesUsageLog(deviceid: device.id, timestamp: now, usage: usage),
+        ElectricDevicesUsageLog(usageId: 0,deviceid: device.id, timestamp: now, usage: usage),
       );
+
+      controller.clear();
+      
     }
+
+    showConfirmedSnackbar(context, "Usage Recorded");
   }
 
   void showAddDeviceDialog(BuildContext context) {
@@ -213,7 +232,7 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
                 if (title.isNotEmpty && usage > 0) {
                   devicesNotifier.addDevice(
                     ElectricDevices(
-                      id: DateTime.now().millisecondsSinceEpoch,
+                      id: 0,
                       title: title,
                       usagePerUse: usage,
                       color: color,
@@ -232,8 +251,6 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
 
   void editDialog(BuildContext context, ElectricDevices device) {
     final devicesNotifier = ref.read(electricDevicesListProvider.notifier);
-
-    
     final titleController = TextEditingController(text: device.title);
     final usageController = TextEditingController(text: device.usagePerUse.toString());
 
@@ -276,6 +293,8 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
                       color: device.color,  
                     ),
                   );
+                  
+                  
                   Navigator.of(context).pop(); // Closes Dialog
                 }
               },
@@ -284,12 +303,8 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
           ],
         );
       },
-    );
+    ); 
   }
-
-
-  
-
 }
 
 double calculateDeviceUsage(double baseUsage, double numHours) {
@@ -306,4 +321,31 @@ Color getRandomColor() {
   int blue = minBrightness + random.nextInt(256 - minBrightness);
 
   return Color.fromARGB(255, red, green, blue);
+}
+
+void showConfirmationDialog(BuildContext context, Function onConfirm, String content) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Are you sure?"),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                onConfirm();
+                Navigator.of(context).pop(); 
+              },
+              child: const Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
 }

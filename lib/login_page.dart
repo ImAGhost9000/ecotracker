@@ -9,10 +9,10 @@ class LoginPage extends StatefulWidget {
     super.key,
   });
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   int _currentStep = 0;
   final _formKey = GlobalKey<FormState>();
   String _email = '';

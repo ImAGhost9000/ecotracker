@@ -1,17 +1,22 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:ecotracker/Providers/electricdevices_provider.dart';
+import 'package:ecotracker/Providers/waterdevices_provider.dart';
 import 'package:ecotracker/circleGraph/circle_graph.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'home_page.dart'; // Import the HomePage
 
 // ignore: use_key_in_widget_constructors
-class UsagePage extends StatefulWidget {
+class UsagePage extends ConsumerStatefulWidget {
 
   @override
-  State<UsagePage> createState() => _UsagePageState();
+  UsagePageState createState() => UsagePageState();
 }
 
-class _UsagePageState extends State<UsagePage> {
+class UsagePageState extends ConsumerState<UsagePage> {
+  
+
   final List<Map<String, dynamic>> electricDevices = [
     {
       'title': 'Computer',
@@ -61,6 +66,9 @@ class _UsagePageState extends State<UsagePage> {
 
   @override
   Widget build(BuildContext context) {
+    final electricDevicesUsage = ref.watch(electricDevicesWeeklyUsageProvider);
+    final waterDevicesUsage = ref.watch(waterDevicesWeeklyUsageProvider);
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -79,9 +87,9 @@ class _UsagePageState extends State<UsagePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Titlewidget(title: 'Electric Devices Usage'),
-            Piegraph(pieChartSections: electricDevices, unit: 'Kwh'),
+            Piegraph(pieChartSections: electricDevicesUsage, unit: 'Kwh'),
             Titlewidget(title: 'Water Devices Usage'),
-            Piegraph(pieChartSections: waterDevices, unit: 'GaL'),
+            Piegraph(pieChartSections: waterDevicesUsage, unit: 'GpM'),
           ],
         ),
       ),

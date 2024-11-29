@@ -17,7 +17,9 @@ class WaterDevicesList extends Notifier<List<WaterDevices>>{
 
 
   addDevice(WaterDevices newDevice){
-    state = [...state,newDevice];
+    final newId = (state.isEmpty ? 0 : state.map((device) => device.id).reduce((a,b) => a > b ? a: b) + 1); //finds the highest id number and adds 1
+    final updatedNewDevice = newDevice.copyWith(id: newId);
+    state = [...state,updatedNewDevice];
   }
 
   removeDevice(int deviceId){
@@ -42,13 +44,74 @@ final waterDevicesListProvider = NotifierProvider<WaterDevicesList,List<WaterDev
 class Waterusageslist extends Notifier<List<WaterDevicesUsageLog>>{
   @override
   List<WaterDevicesUsageLog>build(){
-    return[];
+    return[
+       
+    ];
   }
 
   addUsageLog(WaterDevicesUsageLog newUsage){
-    state = [...state,newUsage];
+    final newId = (state.isEmpty ? 0 : state.map((usageLog) => usageLog.usageId).reduce((a,b) => a > b ? a: b) + 1);
+    final updatedUsageLog = newUsage.copyWith(usageId: newId);
+    state = [...state,updatedUsageLog];
   }
 }
 
 final waterUsagesListProvider = NotifierProvider<Waterusageslist,List<WaterDevicesUsageLog>>(() => Waterusageslist(),);
 
+class WaterWeeklyUsageAggregator extends Notifier<List<double>> {
+  @override
+  List<double> build(){
+    final logs = ref.watch(waterUsagesListProvider);
+    aggregateWeeklyUsage(logs);
+    return state;
+  }
+
+  void aggregateWeeklyUsage(List<WaterDevicesUsageLog> logs){
+    final now = DateTime.now();
+    final currentWeekStart = now.subtract(Duration(days: now.weekday - 1));
+
+    state = List.filled(7, 0.0);
+
+    for(final log in logs){
+      final logDate = DateTime(log.timestamp.year, log.timestamp.month, log.timestamp.day);
+
+      if (logDate.isAfter(currentWeekStart.subtract(const Duration(days: 1))) && logDate.isBefore(currentWeekStart.add(const Duration(days: 7)))){
+          final dayIndex = log.timestamp.weekday - 1;
+          state[dayIndex] += log.usage;
+      }
+    }
+  }
+}
+
+final waterWeeklyUsageAggregatorProvider = NotifierProvider<WaterWeeklyUsageAggregator,List<double>>(
+  WaterWeeklyUsageAggregator.new,
+);
+
+final waterDevicesWeeklyUsageProvider = Provider<List<Map<String, dynamic>>>((ref) {
+  final usageLogs = ref.watch(waterUsagesListProvider); 
+  final devices = ref.watch(waterDevicesListProvider); 
+
+  
+  final Map<int, double> deviceUsageMap = {};
+
+  
+  for (var device in devices) {
+    deviceUsageMap[device.id] = 0.0;
+  }
+
+  for (var log in usageLogs) {
+    if (deviceUsageMap.containsKey(log.deviceid)) {
+      deviceUsageMap[log.deviceid] = deviceUsageMap[log.deviceid]! + log.usage;
+    }
+  }
+
+  final List<Map<String, dynamic>> weeklyUsage = devices.map((device) {
+    return {
+      'title': device.title,
+      'color': device.color,
+      'value': deviceUsageMap[device.id] ?? 0.0, 
+    };
+  }).toList();
+
+  return weeklyUsage;
+});

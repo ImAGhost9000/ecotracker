@@ -32,9 +32,19 @@ class _PiegraphState extends State<Piegraph> {
     return total;
   }
 
+  List<Map<String,dynamic>> sortSections(){
+    List<Map<String,dynamic>> sortedSections = widget.pieChartSections.where((item){
+      return item.containsKey("value") && item["value"] is num;
+    }).toList(); //null safeguard
+
+    sortedSections.sort((a,b) => b['value'].compareTo(a['value']));
+    return sortedSections; 
+  }
+
   @override
   Widget build(BuildContext context) {
     double totalUsage = getTotal(widget.pieChartSections);
+    List<Map<String,dynamic>> sortedSections = sortSections();
 
     return Container(
       margin: const EdgeInsets.all(10.0),
@@ -52,7 +62,7 @@ class _PiegraphState extends State<Piegraph> {
                 height: 400,
                 child: PieChart(
                   PieChartData(
-                    sections: widget.pieChartSections.asMap().entries.map((entry) {
+                    sections: sortedSections.asMap().entries.map((entry) {
                       int index = entry.key;
                       Map<String, dynamic> section = entry.value;
 
@@ -60,11 +70,13 @@ class _PiegraphState extends State<Piegraph> {
                       final double fontSize = isTouched ? 18 : 14;
                       final double radius = isTouched ? 70 : 60;
 
+                      final percentage = ((section['value'] / totalUsage) * 100);
+
                       return PieChartSectionData(
                         value: section['value'],
                         color: section['color'],
                         radius: radius,
-                        title: '${section['value']} ${widget.unit}',
+                        title: '${percentage.toStringAsFixed(2)}%',
                         titleStyle: TextStyle(
                           fontSize: fontSize,
                           color: Colors.black,
@@ -103,13 +115,14 @@ class _PiegraphState extends State<Piegraph> {
             ],
           ),
           Column(
-            children: widget.pieChartSections.asMap().entries.map((entry) {
+            children: sortedSections.asMap().entries.map((entry) {
               int index = entry.key;
               Map<String, dynamic> section = entry.value;
               
               final isTouched = index == touchedIndex;
               final double fontSize = isTouched ? 20 : 18;
               final FontWeight fontWeight = isTouched ? FontWeight.bold : FontWeight.normal;
+              
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -121,7 +134,7 @@ class _PiegraphState extends State<Piegraph> {
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    '${section['title']} : ${section['value']} ${widget.unit}',
+                    '${section['title']} : ${section['value'].toStringAsFixed(2)} ${widget.unit}',
                     style: TextStyle(
                       fontSize: fontSize,
                       fontWeight: fontWeight,
