@@ -1,6 +1,6 @@
 import 'package:ecotracker/Providers/date_provider.dart';
 import 'package:ecotracker/Providers/electricdevices_provider.dart';
-import 'package:ecotracker/SnackBar%20/snack_bar.dart';
+import 'package:ecotracker/SnackBar/snack_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:ecotracker/Bar Graph/bar_graph.dart';
 import 'package:ecotracker/Date/date_container.dart';
