@@ -53,6 +53,22 @@ class MyBarGraph extends StatelessWidget {
           },
         ),
 
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData( 
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return BarTooltipItem(
+                rod.toY.toStringAsFixed(2),
+                TextStyle(
+                  color: barColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              );
+            },
+            
+          )
+        ),
+
+
         borderData: FlBorderData(
           show: false,
         ),

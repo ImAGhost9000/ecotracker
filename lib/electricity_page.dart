@@ -17,6 +17,8 @@ class ElectricityPage extends ConsumerStatefulWidget {
 
 class ElectricityPageState extends ConsumerState<ElectricityPage> {
   final Map<int, TextEditingController> deviceInputControllers = {};
+  final GlobalKey<FormState> _formkey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _diaglogkey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -37,124 +39,184 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Padding(
-                padding: EdgeInsets.only(right: 16.0),
-                child: DateContainer(),
-              ),
-              Bargraph(
-                weeklyUsage: electricalWeeklyUsages, 
-                barColor: Colors.yellow,
-                unitMeasurement: 'KwH = Kilowatt per Hour',
-              ),
-              const SizedBox(height: 10),
-              
-              Flexible(
-                child: ListView.builder(
-                  itemCount: electricDevices.length,
-                  itemBuilder: (context, index) {
-                    final device = electricDevices[index];
-                    deviceInputControllers.putIfAbsent(
-                      device.id,
-                      () => TextEditingController(),
-                    );
-                    return Card(
-                      color: Colors.yellow,
-                      margin: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Stack(
-                        children: [
-                          ListTile(
-                            title: Text(
-                                device.title,
-                                style: const TextStyle(
-                                  color: Colors.black
-                                ),
-                              ),
-                            subtitle: Text("Usage: ${device.usagePerUse} kWh", style: const TextStyle(color: Colors.black),),
-                            trailing: SizedBox(
-                              width: 160,
-                              child: TextFormField(
-                                style: const TextStyle(color: Colors.black),
-                                controller: deviceInputControllers[device.id],
-                                decoration: InputDecoration(
-                                  labelText: 'Hours Used?', labelStyle: const TextStyle(color: Colors.black),
-                                  border: const OutlineInputBorder(),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(color: Colors.black),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: const BorderSide(color: Colors.black),
-                                    borderRadius: BorderRadius.circular(10), 
-                                  ),
-                                ),
-                                keyboardType: TextInputType.number,
-                              ),
-                            ),
-                          ),
-
-
-                          Positioned(
-                            top: 28,
-                            right: -12,
-                            child: IconButton(
-                              onPressed: () {
-                                showConfirmationDialog(
-                                  context, 
-                                  () => ref.read(electricDevicesListProvider.notifier).removeDevice(device.id), 
-                                  "Removing Device Deletes their Usage Logs"
-                                );
-                              },
-
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              icon: const Icon(
-                                Icons.close,
-                                color: Colors.black,
-                                size: 15,
-                              ),
-                            ),
-                          ),
-
-                          Positioned(
-                            top: -3,
-                            right: -12,
-                            child: IconButton(
-                              onPressed: (){
-                                editDialog(context,device);
-                                },                             
-                              padding: EdgeInsets.zero,
-                              constraints: const BoxConstraints(),
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.black,
-                                size: 15,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+          child: Form(
+            key: _formkey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(right: 16.0),
+                  child: DateContainer(),
                 ),
-              ),
-              Center( 
-                child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: ElevatedButton(
-                    onPressed: () => showConfirmationDialog(context, () => submitUsage(), "Recorded usages cannot be removed"),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.green[800],
-                    ),
-                    child: const Text('Submit'),
-                    
+            
+                Bargraph(
+                  weeklyUsage: electricalWeeklyUsages, 
+                  barColor: Colors.yellow,
+                  unitMeasurement: 'KwH = Kilowatt per Hour',
+                ),
+            
+                const SizedBox(height: 10),
+                
+                Flexible(
+                  child: ListView.builder(
+                    itemCount: electricDevices.length,
+                    itemBuilder: (context, index) {
+                      final device = electricDevices[index];
+            
+                      deviceInputControllers.putIfAbsent(
+                        device.id,
+                        () => TextEditingController(),
+                      );
+            
+                      return Card(
+                        color: Colors.yellow,
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Stack(
+                          children: [
+                            ListTile(
+                              title: Text(
+                                  device.title,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              subtitle: Text(
+                                "Usage: ${device.usagePerUse} kW", 
+                                style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                              ),
+                              trailing: SizedBox(
+                                width: 160,
+                                child: TextFormField(
+                                  style: const TextStyle(color: Colors.black),
+                                  controller: deviceInputControllers[device.id],
+                                  decoration: InputDecoration(
+                                    labelText: 'Hours Used?', 
+                                    labelStyle: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    border: const OutlineInputBorder(),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Colors.black),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: const BorderSide(color: Colors.black),
+                                      borderRadius: BorderRadius.circular(10), 
+                                    ),
+
+                                    errorBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.red), 
+                                    ),
+
+                                    focusedErrorBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.red),
+                                    ),
+
+                                    errorStyle: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 8,
+                                    ),
+                                  ),
+
+                                  keyboardType: TextInputType.number,
+
+                                  validator: (value){
+                                    if(value == null || value.isEmpty){
+                                      return null;
+                                    }
+
+                                    final num = double.tryParse(value);
+
+                                    if(num == null || num <= 0){
+                                      return "enter a positive number";
+                                    }
+
+                                    if( num >= 25){
+                                      return "input cannot exceed 24 hours";
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                            ),
+            
+            
+                            Positioned(
+                              top: 28,
+                              right: -12,
+                              child: IconButton(
+                                onPressed: () {
+                                  showConfirmationDialog(
+                                    context, 
+                                    () => ref.read(electricDevicesListProvider.notifier).removeDevice(device.id), 
+                                    "Removing Device Deletes their Usage Logs"
+                                  );
+                                },
+            
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: Colors.black,
+                                  size: 15,
+                                ),
+                              ),
+                            ),
+            
+                            Positioned(
+                              top: -3,
+                              right: -12,
+                              child: IconButton(
+                                onPressed: (){
+                                  editDialog(context,device);
+                                },
+
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.black,
+                                  size: 15,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
-              ),
-            ],
+                Center( 
+                  child: Padding(
+                    padding: const EdgeInsets.all(6.0),
+                    child: ElevatedButton(
+                      onPressed: (){
+                        if(_formkey.currentState!.validate()){
+                          showConfirmationDialog(context, () => submitUsage(), "Recorded usages cannot be removed");
+                        }
+
+                        else{
+                          showErrorSnackbar(context, "Invalid Input");
+                        }
+                      },
+                      
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.green[800],
+                      ),
+                      child: const Text('Submit'),
+                      
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -198,25 +260,34 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
     final devicesNotifier = ref.read(electricDevicesListProvider.notifier);
     final titleController = TextEditingController();
     final usageController = TextEditingController();
+    
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Add New Device'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: "Device Name"),
-              ),
-              TextField(
-                controller: usageController,
-                decoration: const InputDecoration(labelText: "Usage per Use (kWh)"),
-                keyboardType: TextInputType.number,
-              ),
-            ],
+          content: Form(
+            key: _diaglogkey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: "Device Name",
+                  ),
+                  validator: (value) => validateDeviceName(value),
+                ),
+                
+                TextFormField(
+                  controller: usageController,
+                  decoration: const InputDecoration(labelText: "Usage per Use (kWh)"),
+                  keyboardType: TextInputType.number,
+                  validator: (value) => validateUsagePerUse(value),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -225,20 +296,22 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
             ),
             TextButton(
               onPressed: () {
-                final title = titleController.text;
-                final usage = double.tryParse(usageController.text) ?? 0;
-                final color = getRandomColor();
+                if(_diaglogkey.currentState!.validate()){
+                  final title = titleController.text;
+                  final usage = double.tryParse(usageController.text) ?? 0;
+                  final color = getRandomColor();
 
-                if (title.isNotEmpty && usage > 0) {
-                  devicesNotifier.addDevice(
-                    ElectricDevices(
-                      id: 0,
-                      title: title,
-                      usagePerUse: usage,
-                      color: color,
-                    ),
-                  );
-                  Navigator.of(context).pop();
+                  if (title.isNotEmpty && usage > 0) {
+                    devicesNotifier.addDevice(
+                      ElectricDevices(
+                        id: 0,
+                        title: title,
+                        usagePerUse: usage,
+                        color: color,
+                      ),
+                    );
+                    Navigator.of(context).pop();
+                  }
                 }
               },
               child: const Text('Add'),
@@ -259,19 +332,24 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Edit Device'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: "Device Name"),
-              ),
-              TextField(
-                controller: usageController,
-                decoration: const InputDecoration(labelText: "Usage per Use (kWh)"),
-                keyboardType: TextInputType.number,
-              ),
-            ],
+          content: Form(
+            key: _diaglogkey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextFormField(
+                  controller: titleController,
+                  decoration: const InputDecoration(labelText: "Device Name"),
+                  validator: (value) => validateDeviceName(value),
+                ),
+                TextFormField(
+                  controller: usageController,
+                  decoration: const InputDecoration(labelText: "Usage per Use (kWh)"),
+                  keyboardType: TextInputType.number,
+                  validator: (value) => validateUsagePerUse(value),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -280,23 +358,27 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
             ),
             TextButton(
               onPressed: () {
-                final title = titleController.text;
-                final usage = double.tryParse(usageController.text) ?? 0;
 
-                if (title.isNotEmpty && usage > 0) {
+                if(_diaglogkey.currentState!.validate()){
+                  final title = titleController.text;
+                  final usage = double.tryParse(usageController.text) ?? 0;
                   
-                  devicesNotifier.updateDevice(
-                    ElectricDevices(
-                      id: device.id,
-                      title: title,    
-                      usagePerUse: usage, 
-                      color: device.color,  
-                    ),
-                  );
-                  
-                  
-                  Navigator.of(context).pop(); // Closes Dialog
+                  if (title.isNotEmpty && usage > 0) {
+                    
+                    devicesNotifier.updateDevice(
+                      ElectricDevices(
+                        id: device.id,
+                        title: title,    
+                        usagePerUse: usage, 
+                        color: device.color,  
+                      ),
+                    );
+                    
+                    
+                    Navigator.of(context).pop(); // Closes Dialog
+                  }
                 }
+               
               },
               child: const Text('Edit'),
             ),
@@ -308,6 +390,7 @@ class ElectricityPageState extends ConsumerState<ElectricityPage> {
 }
 
 double calculateDeviceUsage(double baseUsage, double numHours) {
+
   if (numHours <= 0 || numHours > 24) return 0;
   return baseUsage * numHours;
 }
@@ -348,4 +431,26 @@ void showConfirmationDialog(BuildContext context, Function onConfirm, String con
         );
       },
     );
+}
+
+String? validateDeviceName(String? value, {String emptyMessage = "Device Name cannot be blank"}){
+  if(value == null || value.isEmpty){
+    return emptyMessage;
+  }
+
+  return null;
+}
+
+
+String? validateUsagePerUse(String? value, {String emptyMessage = "Usage per use cannot be blank", String invalidMessage = "Please enter a positive value"}) {
+  if (value == null || value.isEmpty) {
+    return emptyMessage;
+  }
+
+  final usage = double.tryParse(value);
+  if (usage == null || usage <= 0) {
+    return invalidMessage;
+  }
+
+  return null;
 }

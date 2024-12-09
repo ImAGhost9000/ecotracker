@@ -70,10 +70,19 @@ class _PiegraphState extends State<Piegraph> {
                       final double fontSize = isTouched ? 18 : 14;
                       final double radius = isTouched ? 70 : 60;
 
-                      final percentage = ((section['value'] / totalUsage) * 100);
+                      final double percentage = ((section['value'] / totalUsage) * 100);
+                      const double minPercentage = 5.0;
+                      final bool tooSmall = percentage < minPercentage;
+
+                      double adjustedValue = section['value'];
+                      if(tooSmall && section['value'] != 0){
+                        adjustedValue = totalUsage * (minPercentage / 100);
+                      }
+
+              
 
                       return PieChartSectionData(
-                        value: section['value'],
+                        value: adjustedValue,
                         color: section['color'],
                         radius: radius,
                         title: '${percentage.toStringAsFixed(2)}%',

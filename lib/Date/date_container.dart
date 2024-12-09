@@ -21,7 +21,7 @@ class DateContainer extends ConsumerWidget {
       context: context,
       initialDate: currentDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      lastDate: currentDate,
     ).then((pickedDate) {
       if (pickedDate != null && pickedDate != currentDate) {
         notifier.updateDate(pickedDate); 
@@ -48,7 +48,7 @@ class DateContainer extends ConsumerWidget {
           onTap: () => selectDate(context, ref),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 40, 39, 39),
+              color: Colors.green[600],
               borderRadius: BorderRadius.circular(40),
             ),
             child: Padding(
