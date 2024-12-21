@@ -1,22 +1,41 @@
+import 'package:ecotracker/firebase_options.dart';
+import 'package:ecotracker/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // Import HomePage class
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-void main() {
-  runApp(const ProviderScope(child: MaterialApp(home: EcoTrackerApp())));
+import 'dart:io';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+  );
+  runApp(const ProviderScope(child: EcoTrackerApp()));
+
+  HttpOverrides.global = MyHttpOverrides();
 }
 
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
 
-
-class EcoTrackerApp extends StatelessWidget {
-  const EcoTrackerApp({
-    super.key,
-  });
+class EcoTrackerApp extends ConsumerWidget {
+  const EcoTrackerApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-      theme: ThemeData.dark(), 
-      home: const HomePage(), 
+      theme: ThemeData.dark(),
+      home: const SplashScreen(), // Directly go to SplashScreen
     );
   }
 }

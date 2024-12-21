@@ -5,14 +5,20 @@ import 'package:ecotracker/Providers/date_provider.dart';
 class DateContainer extends ConsumerWidget {
   const DateContainer({super.key});
 
-
   String formatDate(DateTime date) {
-    const List<String> weekdays = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+    const List<String> weekdays = [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ];
     String weekday = weekdays[date.weekday - 1];
     return "$weekday - ${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}";
   }
 
-  
   void selectDate(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(selectedDateNotifierProvider.notifier);
     final currentDate = ref.read(selectedDateNotifierProvider);
@@ -21,10 +27,10 @@ class DateContainer extends ConsumerWidget {
       context: context,
       initialDate: currentDate,
       firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      lastDate: DateTime.now(),
     ).then((pickedDate) {
       if (pickedDate != null && pickedDate != currentDate) {
-        notifier.updateDate(pickedDate); 
+        notifier.updateDate(pickedDate);
       }
     }).catchError((error) {
       debugPrint("Date Picker Error: $error");
@@ -48,11 +54,11 @@ class DateContainer extends ConsumerWidget {
           onTap: () => selectDate(context, ref),
           child: Container(
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 40, 39, 39),
-              borderRadius: BorderRadius.circular(40),
+              color: const Color(0xFF059212),
+              borderRadius: BorderRadius.circular(25),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(6.5),
               child: Text(
                 formatDate(selectedDate),
                 style: const TextStyle(
@@ -65,12 +71,13 @@ class DateContainer extends ConsumerWidget {
             ),
           ),
         ),
-        
-        if(!isDefaultDate)
+        if (!isDefaultDate)
           IconButton(
-            onPressed: () => ref.read(selectedDateNotifierProvider.notifier).resetToDefault(), 
-            icon: const Icon(Icons.close), 
-            highlightColor: Colors.purpleAccent, 
+            onPressed: () => ref
+                .read(selectedDateNotifierProvider.notifier)
+                .resetToDefault(),
+            icon: const Icon(Icons.close),
+            highlightColor: Colors.purpleAccent,
             iconSize: 12,
             padding: EdgeInsets.zero,
           ),

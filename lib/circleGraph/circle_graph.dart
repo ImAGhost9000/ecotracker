@@ -1,10 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-
 class Piegraph extends StatefulWidget {
-
-
   const Piegraph({
     super.key,
     required this.pieChartSections,
@@ -32,19 +29,29 @@ class _PiegraphState extends State<Piegraph> {
     return total;
   }
 
-  List<Map<String,dynamic>> sortSections(){
-    List<Map<String,dynamic>> sortedSections = widget.pieChartSections.where((item){
+  Color hexToColor(String hexString) {
+    // Ensure the hex string is 6 characters long by removing the leading '#' and adding 'FF' if needed
+    hexString = hexString.replaceAll('#', '');
+    if (hexString.length == 6) {
+      hexString = 'FF$hexString';
+    }
+    return Color(int.parse('0x$hexString'));
+  }
+
+  List<Map<String, dynamic>> sortSections() {
+    List<Map<String, dynamic>> sortedSections =
+        widget.pieChartSections.where((item) {
       return item.containsKey("value") && item["value"] is num;
     }).toList(); //null safeguard
 
-    sortedSections.sort((a,b) => b['value'].compareTo(a['value']));
-    return sortedSections; 
+    sortedSections.sort((a, b) => b['value'].compareTo(a['value']));
+    return sortedSections;
   }
 
   @override
   Widget build(BuildContext context) {
     double totalUsage = getTotal(widget.pieChartSections);
-    List<Map<String,dynamic>> sortedSections = sortSections();
+    List<Map<String, dynamic>> sortedSections = sortSections();
 
     return Container(
       margin: const EdgeInsets.all(10.0),
@@ -70,10 +77,18 @@ class _PiegraphState extends State<Piegraph> {
                       final double fontSize = isTouched ? 18 : 14;
                       final double radius = isTouched ? 70 : 60;
 
-                      final percentage = ((section['value'] / totalUsage) * 100);
+                      final double percentage =
+                          ((section['value'] / totalUsage) * 100);
+                      const double minPercentage = 5.0;
+                      final bool tooSmall = percentage < minPercentage;
+
+                      double adjustedValue = section['value'];
+                      if (tooSmall && section['value'] != 0) {
+                        adjustedValue = totalUsage * (minPercentage / 100);
+                      }
 
                       return PieChartSectionData(
-                        value: section['value'],
+                        value: adjustedValue,
                         color: section['color'],
                         radius: radius,
                         title: '${percentage.toStringAsFixed(2)}%',
@@ -91,8 +106,8 @@ class _PiegraphState extends State<Piegraph> {
                         setState(() {
                           if (pieTouchResponse != null &&
                               pieTouchResponse.touchedSection != null) {
-                            touchedIndex =
-                                pieTouchResponse.touchedSection!.touchedSectionIndex;
+                            touchedIndex = pieTouchResponse
+                                .touchedSection!.touchedSectionIndex;
                           } else {
                             touchedIndex = null;
                           }
@@ -118,11 +133,11 @@ class _PiegraphState extends State<Piegraph> {
             children: sortedSections.asMap().entries.map((entry) {
               int index = entry.key;
               Map<String, dynamic> section = entry.value;
-              
+
               final isTouched = index == touchedIndex;
               final double fontSize = isTouched ? 20 : 18;
-              final FontWeight fontWeight = isTouched ? FontWeight.bold : FontWeight.normal;
-              
+              final FontWeight fontWeight =
+                  isTouched ? FontWeight.bold : FontWeight.normal;
 
               return Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -130,7 +145,7 @@ class _PiegraphState extends State<Piegraph> {
                   Container(
                     width: 20,
                     height: 20,
-                    color: section['color'],  // Color box
+                    color: section['color'], // Color box
                   ),
                   const SizedBox(width: 10),
                   Text(
@@ -151,15 +166,14 @@ class _PiegraphState extends State<Piegraph> {
   }
 }
 
-
-double getTotal(List<Map<String, dynamic>> data){
+double getTotal(List<Map<String, dynamic>> data) {
   double total = 0;
 
-  for(var item in data){
-    if(item.containsKey("value") && item["value"] is num){
-      total+=item["value"];
+  for (var item in data) {
+    if (item.containsKey("value") && item["value"] is num) {
+      total += item["value"];
     }
   }
-  
+
   return total;
 }

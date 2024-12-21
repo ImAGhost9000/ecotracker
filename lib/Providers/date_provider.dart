@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class SelectedDateNotifier extends Notifier<DateTime> {
   @override
   DateTime build() {
-    return DateTime.now(); 
+    return DateTime.now();
   }
-  
+
   void updateDate(DateTime newDate) {
     state = newDate;
   }
@@ -15,6 +15,6 @@ class SelectedDateNotifier extends Notifier<DateTime> {
   }
 }
 
-final selectedDateNotifierProvider = NotifierProvider<SelectedDateNotifier, DateTime>(() => SelectedDateNotifier());
-
-
+final selectedDateNotifierProvider =
+    NotifierProvider<SelectedDateNotifier, DateTime>(
+        () => SelectedDateNotifier());
